@@ -22,25 +22,34 @@ else {
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  $missing = array();
-
-  if ($_POST['name'] == '' || $_POST['name'] == NULL) {
-    array_push($missing, 'name');
-  }
-  if ($_POST['category'] == '' || $_POST['category'] == NULL) {
-    array_push($missing, 'category');
-  }
-  if ($_POST['length'] == '' || $_POST['length'] == NULL) {
-    array_push($missing, 'length');
-  }
-
-  if (count($missing) > 0) {
-    homePageErr($missing);
+  if (isset($_POST['delete'])) {
+    deleteMovie($_POST['delete']);
   }
   else {
-    addMovie();
+    $missing = array();
+
+    if ($_POST['name'] == '' || $_POST['name'] == NULL || !is_string($_POST['name'])) {
+      array_push($missing, 'name');
+    }
+    if ($_POST['category'] == '' || $_POST['category'] == NULL || !is_string($_POST['category'])) {
+      array_push($missing, 'category');
+    }
+    if ($_POST['length'] == '' || $_POST['length'] == NULL || !is_numeric($_POST['length'])) {
+      array_push($missing, 'length');
+    }
+
+    if (count($missing) > 0) {
+      homePageErr($missing);
+    } else {
+      addMovie();
+    }
   }
 }
+
+function deleteMovie($id) {
+  echo "<p>$id";
+}
+
 
 function addMovie() {
   $mysqli = new mysqli("127.0.0.1", 'root', 'baseballsql', 'boonelocaldb');
@@ -60,7 +69,7 @@ function addMovie() {
     echo "Execute statement failed: (" . $mysqli->errno . ") " . $mysqli->error;
   }
   else {
-    homePage('Movie successfully added to the database.');
+    homePage('Movie successfully added to the database');
   }
 }
 
@@ -76,7 +85,7 @@ function showTable() {
     <caption>My Movies</caption>
     <thead>
       <tr>
-        <th></th><th>Title</th><th>Category</th><th>Length (mins.)</th><th>Status</th>
+        <th></th><th>Title</th><th>Category</th><th>Length (mins.)</th><th>Status</th><th>Remove?</th>
       </tr>
     </thead>
 
@@ -98,11 +107,20 @@ function showTable() {
       echo "Binding output params failed: (" . $stmt->errno . ") " . $stmt->error;
     }
 
+    echo "<tbody>";
     while ($stmt->fetch()) {
-      echo "<tbody>";
-      echo "<tr><td>$out_id</td><td>$out_name</td><td>$out_cat</td><td>$out_length</td><td>$out_rented</td></tr>";
-      echo "<tbody>";
+      echo "<tr><td>$out_id</td><td>$out_name</td><td>$out_cat</td><td>$out_length</td>";
+      if (!$out_rented) {
+        echo "<td>available</td>";
+      }
+      else {
+        echo "<td>checked out</td>";
+      }
+      echo '<td><form action="scripts.php" method="post"><button name="delete" value="' . $out_id . '">X</button>';
+      echo '</form></td></tr>';
+
     }
+    echo "</tbody>";
     ?>
   </table>
 
@@ -113,7 +131,7 @@ function showTable() {
 function homePageErr($missing) {
   echo "<p>";
   foreach ($missing as $key => $value) {
-    echo "Please enter a $value.<br>";
+    echo "Please enter a valid $value.<br>";
   }
   echo '<p>Click <a href="/assignment4-part2/src/">here</a> to return to the movie index.';
   die();
