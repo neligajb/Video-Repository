@@ -1,4 +1,5 @@
 <?php include "scripts.php"; ?>
+
 <!DOCTYPE html>
 <html>
 <head lang="en">
@@ -11,7 +12,11 @@
   <p>Choose an action below...</p>
   <div>
     <form action="scripts.php" method="post">
-      <p>Add Video<input type="button" value="+" name="add_vid" /></p>
+      <h4>Add Video</h4>
+      <p>Name: <input type="text" name="name" /></p>
+      <p>Category: <input type="text" name="category" /></p>
+      <p>Length: <input type="text" name="length" /></p>
+      <p><input type="submit" value="Add Movie" /></p>
     </form>
     <form>
       <!-- getCats -->
