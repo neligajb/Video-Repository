@@ -47,7 +47,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 function deleteMovie($id) {
-  echo "<p>$id";
+
+  $mysqli = new mysqli("127.0.0.1", 'root', 'baseballsql', 'boonelocaldb');
+  if ($mysqli->connect_errno) {
+    echo "Failed to connect to MySQL: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error;
+  }
+
+  if (!($stmt = $mysqli->prepare("DELETE FROM video_store WHERE id = ?"))) {
+    echo "Prepared statement failed: (" . $mysqli->errno . ") " . $mysqli->error;
+  }
+
+  if (!$stmt->bind_param("i", $id)) {
+    echo "Binding output params failed: (" . $stmt->errno . ") " . $stmt->error;
+  }
+
+  if (!$stmt->execute()) {
+    echo "Execute statement failed: (" . $mysqli->errno . ") " . $mysqli->error;
+  }
+  else {
+    homePage("Entry successfully deleted");
+  }
 }
 
 
