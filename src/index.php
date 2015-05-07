@@ -22,7 +22,7 @@
     </form>
   </div>
   <section>
-    <?php showTable(); ?>
+    <?php showTable($password); ?>
   </section>
 </body>
 </html>
