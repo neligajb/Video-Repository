@@ -49,7 +49,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 }
 
+
 function checkoutMovie($id) {
+
+  global $password;
+
   $mysqli = new mysqli("127.0.0.1", 'root', $password, 'boonelocaldb');
   if ($mysqli->connect_errno) {
     echo "Failed to connect to MySQL: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error;
@@ -78,9 +82,6 @@ function checkoutMovie($id) {
 
   mysqli_close($mysqli);
 
-  echo "<p>$id";
-  echo "<p>$rented";
-
   if ($rented) {
     homePage('Movie is already checked out');
   }
@@ -90,7 +91,7 @@ function checkoutMovie($id) {
       echo "Failed to connect to MySQL: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error;
     }
     
-    if (!($stmt = $mysqli->prepare("UPDATE video_store SET (rented = 1) WHERE (id = ?)"))) {
+    if (!($stmt = $mysqli->prepare("UPDATE video_store SET rented = 1 WHERE id = ?"))) {
       echo "Prepared statement failed: (" . $mysqli->errno . ") " . $mysqli->error;
     }
 
@@ -110,6 +111,8 @@ function checkoutMovie($id) {
 
 
 function deleteMovie($id) {
+
+  global $password;
 
   $mysqli = new mysqli("127.0.0.1", 'root', $password, 'boonelocaldb');
   if ($mysqli->connect_errno) {
@@ -135,6 +138,9 @@ function deleteMovie($id) {
 
 
 function addMovie() {
+
+  global $password;
+
   $mysqli = new mysqli("127.0.0.1", 'root', $password, 'boonelocaldb');
   if ($mysqli->connect_errno) {
     echo "Failed to connect to MySQL: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error;
@@ -160,8 +166,11 @@ function addMovie() {
 }
 
 
-function showTable($pword) {
-  $mysqli = new mysqli("127.0.0.1", 'root', $pword, 'boonelocaldb');
+function showTable() {
+
+  global $password;
+
+  $mysqli = new mysqli("127.0.0.1", 'root', $password, 'boonelocaldb');
   if ($mysqli->connect_errno) {
     echo "Failed to connect to MySQL: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error;
   }
@@ -171,14 +180,27 @@ function showTable($pword) {
     <caption>My Movies</caption>
     <thead>
       <tr>
-        <th></th><th>Title</th><th>Category</th><th>Length (mins.)</th><th>Status</th><th>Checkout?</th><th>Remove?</th>
+        <th></th><th>Title</th><th>Category</th><th>Length (mins.)</th><th>Status</th><th>Checkout</th><th>Delete</th>
       </tr>
     </thead>
 
     <?php
-    if (!($stmt = $mysqli->prepare("SELECT id, name, category, length, rented FROM video_store"))) {
-      echo "Prepared statement failed: (" . $mysqli->errno . ") " . $mysqli->error;
+    if (!isset($_GET['category-list']) || $_GET['category-list'] === 'all') {
+      if (!($stmt = $mysqli->prepare("SELECT id, name, category, length, rented FROM video_store"))) {
+        echo "Prepared statement failed: (" . $mysqli->errno . ") " . $mysqli->error;
+      }
     }
+    else {
+      if (!($stmt = $mysqli->prepare("SELECT id, name, category, length, rented FROM video_store WHERE category = ?"))) {
+        echo "Prepared statement failed: (" . $mysqli->errno . ") " . $mysqli->error;
+      }
+
+      if (!$stmt->bind_param("s", $_GET['category-list'])) {
+        echo "Binding output params failed: (" . $stmt->errno . ") " . $stmt->error;
+      }
+    }
+
+
     if (!$stmt->execute()) {
       echo "Execute statement failed: (" . $mysqli->errno . ") " . $mysqli->error;
     }
@@ -215,6 +237,48 @@ function showTable($pword) {
   mysqli_close($mysqli);
 }
 
+function getCategories() {
+  global $password;
+
+  $mysqli = new mysqli("127.0.0.1", 'root', $password, 'boonelocaldb');
+  if ($mysqli->connect_errno) {
+    echo "Failed to connect to MySQL: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error;
+  }
+
+  if (!($stmt = $mysqli->prepare("SELECT category FROM video_store"))) {
+    echo "Prepared statement failed: (" . $mysqli->errno . ") " . $mysqli->error;
+  }
+  if (!$stmt->execute()) {
+    echo "Execute statement failed: (" . $mysqli->errno . ") " . $mysqli->error;
+  }
+
+  $category = NULL;
+  $categories = array();
+
+  if (!$stmt->bind_result($category)) {
+    echo "Binding output params failed: (" . $stmt->errno . ") " . $stmt->error;
+  }
+
+  while ($stmt->fetch()) {
+    array_push($categories, $category);
+  }
+
+  $categories = array_unique($categories);
+
+  echo '<form action="index.php" id="category-form" method="get">';
+  echo '<select name="category-list">';
+  echo '<option value="all" selected>All Categories</option>';
+  $len = count($categories);
+  for ($i = 0; $i < $len; $i++) {
+    echo '<option value="' . $categories[$i] . '">' . $categories[$i] . '</option>';
+  }
+  echo "</select>";
+  echo '<input type="submit" value="Filter"></form>';
+
+
+  mysqli_close($mysqli);
+}
+
 
 function homePageErr($missing) {
   echo "<p>";
@@ -224,6 +288,7 @@ function homePageErr($missing) {
   echo '<p>Click <a href="/assignment4-part2/src/">here</a> to return to the movie index.';
   die();
 }
+
 
 function homePage($message) {
   echo "<p>$message.";

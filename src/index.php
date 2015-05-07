@@ -18,11 +18,13 @@
       <p><input type="submit" value="Add Movie" /></p>
     </form>
     <form>
-      <!-- getCats -->
+      <?php getCategories(); ?>
     </form>
   </div>
   <section>
-    <?php showTable($password); ?>
+    <?php
+      showTable();
+    ?>
   </section>
 </body>
 </html>
