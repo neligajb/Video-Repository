@@ -1,23 +1,14 @@
-<!DOCTYPE html>
-<html>
-<head lang="en">
-  <meta charset="UTF-8">
-  <LINK href="videoStyles.css" rel="stylesheet" type="text/css">
-  <title>Confirmation Page</title>
-</head>
-<body>
-
 <?php
 include 'secret.php';
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-$mysqli = new mysqli("127.0.0.1", 'root', $password, 'boonelocaldb');
+$mysqli = new mysqli($db_address, $db_user, $password, $db_name);
 if ($mysqli->connect_errno) {
   echo "Failed to connect to MySQL: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error;
 }
 else {
-  echo "Connection worked!<br>";
+  //echo "Connection worked!<br>";
 }
 
 
@@ -53,8 +44,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 function checkoutMovie($id) {
 
   global $password;
+  global $db_address;
+  global $db_user;
+  global $db_name;
 
-  $mysqli = new mysqli("127.0.0.1", 'root', $password, 'boonelocaldb');
+  $mysqli = new mysqli($db_address, $db_user, $password, $db_name);
   if ($mysqli->connect_errno) {
     echo "Failed to connect to MySQL: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error;
   }
@@ -83,28 +77,36 @@ function checkoutMovie($id) {
   mysqli_close($mysqli);
 
   if ($rented) {
-    homePage('Movie is already checked out');
+    $new_rented = 0;
   }
   else {
-    $mysqli = new mysqli("127.0.0.1", 'root', $password, 'boonelocaldb');
-    if ($mysqli->connect_errno) {
-      echo "Failed to connect to MySQL: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error;
-    }
-    
-    if (!($stmt = $mysqli->prepare("UPDATE video_store SET rented = 1 WHERE id = ?"))) {
-      echo "Prepared statement failed: (" . $mysqli->errno . ") " . $mysqli->error;
-    }
+    $new_rented = 1;
+  }
 
-    if (!$stmt->bind_param("i", $id)) {
-      echo "Binding output params failed: (" . $stmt->errno . ") " . $stmt->error;
-    }
+  $mysqli = new mysqli($db_address, $db_user, $password, $db_name);
+  if ($mysqli->connect_errno) {
+    echo "Failed to connect to MySQL: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error;
+  }
 
-    if (!$stmt->execute()) {
-      echo "Execute statement failed: (" . $mysqli->errno . ") " . $mysqli->error;
+  if (!($stmt = $mysqli->prepare("UPDATE video_store SET rented = ? WHERE id = ?"))) {
+    echo "Prepared statement failed: (" . $mysqli->errno . ") " . $mysqli->error;
+  }
+
+  if (!$stmt->bind_param("ii", $new_rented, $id)) {
+    echo "Binding output params failed: (" . $stmt->errno . ") " . $stmt->error;
+  }
+
+  if (!$stmt->execute()) {
+    echo "Execute statement failed: (" . $mysqli->errno . ") " . $mysqli->error;
+  }
+  else {
+    mysqli_close($mysqli);
+    if ($new_rented == 0) {
+      header("Location: /assignment4-part2/src/?action=check-in");
     }
     else {
-      mysqli_close($mysqli);
-      homePage('Movie successfully checked out');
+      header("Location: /assignment4-part2/src/?action=check-out");
+      exit;
     }
   }
 }
@@ -113,8 +115,11 @@ function checkoutMovie($id) {
 function deleteMovie($id) {
 
   global $password;
+  global $db_address;
+  global $db_user;
+  global $db_name;
 
-  $mysqli = new mysqli("127.0.0.1", 'root', $password, 'boonelocaldb');
+  $mysqli = new mysqli($db_address, $db_user, $password, $db_name);
   if ($mysqli->connect_errno) {
     echo "Failed to connect to MySQL: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error;
   }
@@ -132,7 +137,7 @@ function deleteMovie($id) {
   }
   else {
     mysqli_close($mysqli);
-    homePage("Entry successfully deleted");
+    header("Location: /assignment4-part2/src/?action=remove");
   }
 }
 
@@ -140,8 +145,11 @@ function deleteMovie($id) {
 function addMovie() {
 
   global $password;
+  global $db_address;
+  global $db_user;
+  global $db_name;
 
-  $mysqli = new mysqli("127.0.0.1", 'root', $password, 'boonelocaldb');
+  $mysqli = new mysqli($db_address, $db_user, $password, $db_name);
   if ($mysqli->connect_errno) {
     echo "Failed to connect to MySQL: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error;
   }
@@ -161,7 +169,7 @@ function addMovie() {
   }
   else {
     mysqli_close($mysqli);
-    homePage('Movie successfully added to the database');
+    header("Location: /assignment4-part2/src/?action=add");
   }
 }
 
@@ -169,8 +177,11 @@ function addMovie() {
 function showTable() {
 
   global $password;
+  global $db_address;
+  global $db_user;
+  global $db_name;
 
-  $mysqli = new mysqli("127.0.0.1", 'root', $password, 'boonelocaldb');
+  $mysqli = new mysqli($db_address, $db_user, $password, $db_name);
   if ($mysqli->connect_errno) {
     echo "Failed to connect to MySQL: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error;
   }
@@ -180,7 +191,7 @@ function showTable() {
     <caption>My Movies</caption>
     <thead>
       <tr>
-        <th></th><th>Title</th><th>Category</th><th>Length (mins.)</th><th>Status</th><th>Checkout</th><th>Delete</th>
+        <th></th><th>Title</th><th>Category</th><th>Length (mins.)</th><th>Status</th><th>Check-in/<br>Check-out</th><th>Delete</th>
       </tr>
     </thead>
 
@@ -239,8 +250,11 @@ function showTable() {
 
 function getCategories() {
   global $password;
+  global $db_address;
+  global $db_user;
+  global $db_name;
 
-  $mysqli = new mysqli("127.0.0.1", 'root', $password, 'boonelocaldb');
+  $mysqli = new mysqli($db_address, $db_user, $password, $db_name);
   if ($mysqli->connect_errno) {
     echo "Failed to connect to MySQL: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error;
   }
@@ -264,6 +278,7 @@ function getCategories() {
   }
 
   $categories = array_unique($categories);
+  $categories = array_values($categories);
 
   echo '<form action="index.php" id="category-form" method="get">';
   echo '<select name="category-list">';
@@ -296,5 +311,4 @@ function homePage($message) {
 }
 
 ?>
-</body>
-</html>
+

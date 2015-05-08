@@ -5,10 +5,13 @@
   <LINK href="videoStyles.css" rel="stylesheet" type="text/css">
   <title>Boone's Video Repository</title>
 </head>
-<?php include "scripts.php"; ?>
+<?php
+include "scripts.php";
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+?>
 <body>
   <h1>Boone's Video Repo</h1>
-  <p>Choose an action below...</p>
   <div>
     <form action="scripts.php" method="post">
       <h4>Add Video</h4>
@@ -22,9 +25,7 @@
     </form>
   </div>
   <section>
-    <?php
-      showTable();
-    ?>
+    <?php showTable(); ?>
   </section>
 </body>
 </html>
