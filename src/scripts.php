@@ -19,24 +19,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   else if (isset($_POST['checkout'])) {
     checkoutMovie($_POST['checkout']);
   }
+  else if (isset($_POST['delete-all'])) {
+    deleteAllMovies();
+  }
   else {    // else we are attempting to add a movie
-    $missing = array();
 
     if ($_POST['name'] == '' || $_POST['name'] == NULL || !is_string($_POST['name'])) {
-      array_push($missing, 'name');
-    }
-    if ($_POST['category'] == '' || $_POST['category'] == NULL || !is_string($_POST['category'])) {
-      array_push($missing, 'category');
-    }
-    if ($_POST['length'] == '' || $_POST['length'] == NULL || !is_numeric($_POST['length'])) {
-      array_push($missing, 'length');
+      $error = urlencode("Entry must have a title.");
+      header("Location: /assignment4-part2/src/?action=$error");
     }
 
-    if (count($missing) > 0) {
-      homePageErr($missing);
-    } else {
+    $ok_chars = array(' ', '/', '-');
+
+    if (($_POST['category'] != '' || $_POST['category'] != NULL) &&
+         !ctype_alpha(str_replace($ok_chars, '', $_POST['category']))) {
+      $error = urlencode("Category must consist only of letters, '-' and '/'.");
+      header("Location: /assignment4-part2/src/?action=$error");
+    }
+    else if (($_POST['length'] != '' || $_POST['length'] != NULL) &&
+              !ctype_digit($_POST['length']) || $_POST['length'] < 0 || $_POST['length'] > 999) {
+      $error = urlencode('Length must be a number 0 - 999.');
+      header("Location: /assignment4-part2/src/?action=$error");
+    }
+    else {
       addMovie();
     }
+  }
+}
+
+function actionMessage() {
+  if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    if (isset($_GET['action'])) {
+      echo '<div><p class="notify">' . urldecode($_GET['action']) . '</p></div>';
+    }
+  }
+}
+
+
+function deleteAllMovies() {
+  global $password;
+  global $db_address;
+  global $db_user;
+  global $db_name;
+
+  $mysqli = new mysqli($db_address, $db_user, $password, $db_name);
+  if ($mysqli->connect_errno) {
+    echo "Failed to connect to MySQL: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error;
+  }
+
+  if (!($stmt = $mysqli->prepare("DELETE FROM video_store"))) {
+    echo "Prepared statement failed: (" . $mysqli->errno . ") " . $mysqli->error;
+  }
+
+  if (!$stmt->execute()) {
+    echo "Execute statement failed: (" . $mysqli->errno . ") " . $mysqli->error;
+  }
+  else {
+    mysqli_close($mysqli);
+    header("Location: /assignment4-part2/src/?action=remove-all");
   }
 }
 
@@ -191,7 +231,7 @@ function showTable() {
     <caption>My Movies</caption>
     <thead>
       <tr>
-        <th></th><th>Title</th><th>Category</th><th>Length (mins.)</th><th>Status</th><th>Check-in/<br>Check-out</th><th>Delete</th>
+        <th>Title</th><th>Category</th><th>Length (mins.)</th><th>Status</th><th>Check-in/<br>Check-out</th><th>Delete</th>
       </tr>
     </thead>
 
@@ -228,7 +268,10 @@ function showTable() {
 
     echo "<tbody>";
     while ($stmt->fetch()) {
-      echo "<tr><td>$out_id</td><td>$out_name</td><td>$out_cat</td><td>$out_length</td>";
+      if ($out_length === 0) {
+        $out_length = '';
+      }
+      echo "<tr><td>$out_name</td><td>$out_cat</td><td>$out_length</td>";
       if (!$out_rented) {
         echo "<td>available</td>";
       }
@@ -294,21 +337,6 @@ function getCategories() {
   mysqli_close($mysqli);
 }
 
-
-function homePageErr($missing) {
-  echo "<p>";
-  foreach ($missing as $key => $value) {
-    echo "Please enter a valid $value.<br>";
-  }
-  echo '<p>Click <a href="/assignment4-part2/src/">here</a> to return to the movie index.';
-  die();
-}
-
-
-function homePage($message) {
-  echo "<p>$message.";
-  echo '<p>Click <a href="/assignment4-part2/src/">here</a> to return to the movie index.';
-}
 
 ?>
 
