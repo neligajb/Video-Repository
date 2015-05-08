@@ -15,12 +15,16 @@ error_reporting(E_ALL);
   <div>
     <form action="scripts.php" method="post" class="text-input">
       <h4>Add Video</h4>
-      <p>Name: <input type="text" name="name" required /></p>
-      <p>Category: <input type="text" name="category" /></p>
-      <p>Length (mins): <input type="number" size="4" min="0" max="999" name="length" /></p>
-      <p><input type="submit" value="Add Movie" /></p>
+      <p>Name: <input id="name" type="text" name="name" required /></p>
+      <p>Category: <input id="category" type="text" name="category" /></p>
+      <p>Length: <input id="length" type="number" size="4" min="0" max="999" name="length" /> mins</p>
+      <p><input class="button" id="add-movie" type="submit" value="Add Movie" /></p>
     </form>
+  </div>
+  <div>
     <?php actionMessage(); ?>
+  </div>
+  <div>
     <form>
       <?php getCategories(); ?>
     </form>
@@ -29,7 +33,7 @@ error_reporting(E_ALL);
     <?php showTable(); ?>
     <div>
       <form action="scripts.php" method="post">
-        <p><input type="submit" name="delete-all" value="Delete All Movies" /></p>
+        <p><input class="button" type="submit" name="delete-all" value="Delete All Movies" /></p>
       </form>
     </div>
   </section>

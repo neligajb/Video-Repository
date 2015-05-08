@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 function actionMessage() {
   if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if (isset($_GET['action'])) {
-      echo '<div><p class="notify">' . urldecode($_GET['action']) . '</p></div>';
+      echo '<div ><p class="notify">' . urldecode($_GET['action']) . '</p></div>';
     }
   }
 }
@@ -76,7 +76,8 @@ function deleteAllMovies() {
   }
   else {
     mysqli_close($mysqli);
-    header("Location: /assignment4-part2/src/?action=remove-all");
+    $message = urlencode('All movies deleted.');
+    header("Location: /assignment4-part2/src/?action=$message");
   }
 }
 
@@ -142,12 +143,13 @@ function checkoutMovie($id) {
   else {
     mysqli_close($mysqli);
     if ($new_rented == 0) {
-      header("Location: /assignment4-part2/src/?action=check-in");
+      $message = urlencode('Movie checked in.');
     }
     else {
-      header("Location: /assignment4-part2/src/?action=check-out");
-      exit;
+      $message = urlencode('Movie checked out.');
     }
+    header("Location: /assignment4-part2/src/?action=$message");
+    exit;
   }
 }
 
@@ -177,7 +179,8 @@ function deleteMovie($id) {
   }
   else {
     mysqli_close($mysqli);
-    header("Location: /assignment4-part2/src/?action=remove");
+    $message = urlencode('Movie deleted.');
+    header("Location: /assignment4-part2/src/?action=$message");
   }
 }
 
@@ -209,7 +212,8 @@ function addMovie() {
   }
   else {
     mysqli_close($mysqli);
-    header("Location: /assignment4-part2/src/?action=add");
+    $message = urlencode("Movie added.");
+    header("Location: /assignment4-part2/src/?action=$message");
   }
 }
 
@@ -228,7 +232,7 @@ function showTable() {
 
   ?>
   <table>
-    <caption>My Movies</caption>
+    <caption><h3>My Movies</h3></caption>
     <thead>
       <tr>
         <th>Title</th><th>Category</th><th>Length (mins.)</th><th>Status</th><th>Check-in/<br>Check-out</th><th>Delete</th>
@@ -331,7 +335,7 @@ function getCategories() {
     echo '<option value="' . $categories[$i] . '">' . $categories[$i] . '</option>';
   }
   echo "</select>";
-  echo '<input type="submit" value="Filter"></form>';
+  echo '<input class="button" id="filter" type="submit" value="Filter"></form>';
 
 
   mysqli_close($mysqli);

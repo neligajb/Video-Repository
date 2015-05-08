@@ -1,8 +1,72 @@
-table, tr, td, th {
-    border-collapse: collapse;
-    border: .2em solid #888;
+* {
+  font-family: Tahoma, Geneva, sans-serif
 }
 
-button {
-    align: center;
+table, tr, td, th {
+  border-collapse: collapse;
+  border: 2px solid #888;
 }
+
+td {
+  padding: .2em;
+}
+
+.text-input > p > input {
+  display: inline-block;
+  width: 120px;
+  padding: .5em;
+}
+
+#name {
+  margin-left: 2em;
+}
+
+#length {
+  margin-left: 1.4em;
+}
+
+#add-movie {
+  width: 90px;
+  padding: .5em;
+}
+
+#filter {
+  margin-left: 10px;
+  width: 60px;
+}
+
+.notify {
+  border: 1px solid lightgray;
+  display: inline-block;
+  padding-top: .7em;
+  padding-bottom: .7em;
+  padding-left: 1.5em;
+  padding-right: 1.5em;
+  background: rgb(55, 202, 52); /* Fall-back for browsers that don't support rgba */
+  background: rgba(55, 202, 52, 0.45);
+  border-radius: 8px;
+  font-size: smaller;
+}
+
+.button {
+  font-family: Tahoma, Geneva, sans-serif;
+  height: 25px;
+}
+
+tr td:nth-child(6) > form > button {
+  display: block;
+  margin: auto;
+  color: rgba(171, 16, 25, 0.66);
+  font-weight: 600;
+}
+
+tr td:nth-child(5) > form > button {
+  display: block;
+  margin: auto;
+  color: rgba(30, 145, 38, 0.66);
+  font-weight: 600;
+}
+
+/*table > caption {*/
+  /*margin-bottom: 10px;*/
+/*}*/
