@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($_POST['name'] == '' || $_POST['name'] == NULL || !is_string($_POST['name'])) {
       $error = urlencode("Entry must have a title.");
-      header("Location: /assignment4-part2/src/?action=$error");
+      header("Location: /~neliganj/assignment4-part2/?action=$error");
     }
 
     $ok_chars = array(' ', '/', '-');
@@ -34,12 +34,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (($_POST['category'] != '' || $_POST['category'] != NULL) &&
          !ctype_alpha(str_replace($ok_chars, '', $_POST['category']))) {
       $error = urlencode("Category must consist only of letters, '-' and '/'.");
-      header("Location: /assignment4-part2/src/?action=$error");
+      header("Location: /~neliganj/assignment4-part2/?action=$error");
     }
     else if (($_POST['length'] != '' || $_POST['length'] != NULL) &&
               !ctype_digit($_POST['length']) || $_POST['length'] < 0 || $_POST['length'] > 999) {
       $error = urlencode('Length must be a number 0 - 999.');
-      header("Location: /assignment4-part2/src/?action=$error");
+      header("Location: /~neliganj/assignment4-part2/?action=$error");
     }
     else {
       addMovie();
@@ -77,7 +77,7 @@ function deleteAllMovies() {
   else {
     mysqli_close($mysqli);
     $message = urlencode('All movies deleted.');
-    header("Location: /assignment4-part2/src/?action=$message");
+    header("Location: /~neliganj/assignment4-part2/?action=$message");
   }
 }
 
@@ -148,7 +148,7 @@ function checkoutMovie($id) {
     else {
       $message = urlencode('Movie checked out.');
     }
-    header("Location: /assignment4-part2/src/?action=$message");
+    header("Location: /~neliganj/assignment4-part2/?action=$message");
     exit;
   }
 }
@@ -180,7 +180,7 @@ function deleteMovie($id) {
   else {
     mysqli_close($mysqli);
     $message = urlencode('Movie deleted.');
-    header("Location: /assignment4-part2/src/?action=$message");
+    header("Location: /~neliganj/assignment4-part2/?action=$message");
   }
 }
 
@@ -213,7 +213,7 @@ function addMovie() {
   else {
     mysqli_close($mysqli);
     $message = urlencode("Movie added.");
-    header("Location: /assignment4-part2/src/?action=$message");
+    header("Location: /~neliganj/assignment4-part2/?action=$message");
   }
 }
 
