@@ -24,7 +24,7 @@ error_reporting(E_ALL);
   <div>
     <?php actionMessage(); ?>
   </div>
-  <div>
+  <div id="categories">
     <form>
       <?php getCategories(); ?>
     </form>
