@@ -321,7 +321,12 @@ function getCategories() {
   }
 
   while ($stmt->fetch()) {
-    array_push($categories, $category);
+    if ($category === '') {
+      //do nothing
+    }
+    else {
+      array_push($categories, $category);
+    }
   }
 
   $categories = array_unique($categories);
